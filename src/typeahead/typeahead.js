@@ -76,7 +76,9 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         active: 'activeIdx',
         select: 'select(activeIdx)',
         query: 'query',
-        position: 'position'
+        position: 'position',
+        nomatch: 'nomatch',
+        selected: 'selected'
       });
       //custom item template
       if (angular.isDefined(attrs.typeaheadTemplateUrl)) {
@@ -104,6 +106,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           //it might happen that several async queries were in progress if a user were typing fast
           //but we are interested only in responses that correspond to the current view value
           if (inputValue === modelCtrl.$viewValue && hasFocus) {
+            scope.query = inputValue;
+            scope.selected = null;
             if (matches.length > 0) {
 
               scope.activeIdx = 0;
@@ -118,7 +122,6 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
                 });
               }
 
-              scope.query = inputValue;
               //position pop-up with matches - we need to re-calculate its position each time we are opening a window
               //with matches as a pop-up might be absolute-positioned and position of an input might have changed on a page
               //due to other elements being rendered
@@ -140,6 +143,9 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
       //we need to propagate user's query so we can higlight matches
       scope.query = undefined;
+
+      //propagate the "no match message"
+      scope.nomatch = attrs.typeaheadNomatch;
 
       //Declare the timeout promise var outside the function scope so that stacked calls can be cancelled later 
       var timeoutPromise;
@@ -219,6 +225,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           $label: parserResult.viewMapper(originalScope, locals)
         });
 
+        scope.selected = model;
+
         resetMatches();
 
         //return focus to the input element if a mach was selected via a mouse click event
@@ -293,7 +301,9 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         query:'=',
         active:'=',
         position:'=',
-        select:'&'
+        select:'&',
+        nomatch:'=',
+        selected:'='
       },
       replace:true,
       templateUrl:'template/typeahead/typeahead-popup.html',
@@ -304,6 +314,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         scope.isOpen = function () {
           return scope.matches.length > 0;
         };
+
+        scope.hasActive = function () {
+            return scope.active != -1;
+        }
 
         scope.isActive = function (matchIdx) {
           return scope.active == matchIdx;
@@ -316,6 +330,20 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         scope.selectMatch = function (activeIdx) {
           scope.select({activeIdx:activeIdx});
         };
+
+        scope.hasSelected = function () {
+            return !!scope.selected;
+        }
+
+        scope.showNoMatch = function () {
+            // The no match message should be shown if..
+            // 1. There is a query AND
+            // 2. There are no matches AND
+            // 3.
+            //   a. No selection has been made OR
+            //   b. The query has been modified since the selection
+            return scope.query && !scope.isOpen() && !scope.hasSelected();
+        }
       }
     };
   })

@@ -153,7 +153,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
 
-        scope.focus = { hasFocus = true };
+        scope.focus = { hasFocus: true };
 
         if (inputValue && inputValue.length >= minSearch) {
           if (waitTime > 0) {
@@ -318,7 +318,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         scope.hasActive = function () {
             return scope.active != -1;
-        }
+        };
 
         scope.isActive = function (matchIdx) {
           return scope.active == matchIdx;
@@ -334,7 +334,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         scope.hasSelected = function () {
             return !!scope.selected;
-        }
+        };
 
         scope.showNoMatch = function () {
             // The no match message should be shown if..
@@ -345,7 +345,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
             //   b. The query has been modified since the selection
             // 4. Field has focus
             return scope.query && !scope.isOpen() && !scope.hasSelected() && scope.focus.hasFocus;
-        }
+        };
       }
     };
   })

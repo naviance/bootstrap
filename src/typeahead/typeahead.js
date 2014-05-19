@@ -96,7 +96,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         query: 'query',
         position: 'position',
         nomatch: 'nomatch',
-        selected: 'selected'
+        selected: 'selected',
+        focus: 'focus'
       });
       //custom item template
       if (angular.isDefined(attrs.typeaheadTemplateUrl)) {
@@ -198,7 +199,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
 
-        hasFocus = true;
+        scope.focus = { hasFocus = true };
 
         if (inputValue && inputValue.length >= minSearch) {
           if (waitTime > 0) {
@@ -211,6 +212,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           isLoadingSetter(originalScope, false);
           cancelPreviousTimeout();
           resetMatches();
+          scope.query = undefined;
         }
 
         if (isEditable) {
@@ -312,7 +314,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       });
 
       element.bind('blur', function (evt) {
-        hasFocus = false;
+        scope.focus.hasFocus = false;
       });
 
       // Keep reference to click handler to unbind it.
@@ -353,7 +355,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         position:'=',
         select:'&',
         nomatch:'=',
-        selected:'='
+        selected:'=',
+        focus:'='
       },
       replace:true,
       templateUrl:'template/typeahead/typeahead-popup.html',
@@ -392,7 +395,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
             // 3.
             //   a. No selection has been made OR
             //   b. The query has been modified since the selection
-            return scope.query && !scope.isOpen() && !scope.hasSelected();
+            // 4. Field has focus
+            return scope.query && !scope.isOpen() && !scope.hasSelected() && scope.focus.hasFocus;
         }
       }
     };

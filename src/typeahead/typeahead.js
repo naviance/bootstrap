@@ -67,8 +67,6 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //expressions used by typeahead
       var parserResult = typeaheadParser.parse(attrs.typeahead);
 
-      var hasFocus;
-
       //pop-up element used to display matches
       var popUpEl = angular.element('<div typeahead-popup></div>');
       popUpEl.attr({
@@ -78,7 +76,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         query: 'query',
         position: 'position',
         nomatch: 'nomatch',
-        selected: 'selected'
+        selected: 'selected',
+        focus: 'focus'
       });
       //custom item template
       if (angular.isDefined(attrs.typeaheadTemplateUrl)) {
@@ -105,7 +104,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
           //it might happen that several async queries were in progress if a user were typing fast
           //but we are interested only in responses that correspond to the current view value
-          if (inputValue === modelCtrl.$viewValue && hasFocus) {
+          if (inputValue === modelCtrl.$viewValue && scope.focus.hasFocus) {
             scope.query = inputValue;
             scope.selected = null;
             if (matches.length > 0) {
@@ -154,7 +153,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
 
-        hasFocus = true;
+        scope.focus = { hasFocus = true };
 
         if (inputValue && inputValue.length >= minSearch) {
           if (waitTime > 0) {
@@ -170,6 +169,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         } else {
           isLoadingSetter(originalScope, false);
           resetMatches();
+          scope.query = undefined;
         }
 
         if (isEditable) {
@@ -265,7 +265,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       });
 
       element.bind('blur', function (evt) {
-        hasFocus = false;
+        scope.focus.hasFocus = false;
       });
 
       // Keep reference to click handler to unbind it.
@@ -303,7 +303,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         position:'=',
         select:'&',
         nomatch:'=',
-        selected:'='
+        selected:'=',
+        focus:'='
       },
       replace:true,
       templateUrl:'template/typeahead/typeahead-popup.html',
@@ -342,7 +343,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
             // 3.
             //   a. No selection has been made OR
             //   b. The query has been modified since the selection
-            return scope.query && !scope.isOpen() && !scope.hasSelected();
+            // 4. Field has focus
+            return scope.query && !scope.isOpen() && !scope.hasSelected() && scope.focus.hasFocus;
         }
       }
     };

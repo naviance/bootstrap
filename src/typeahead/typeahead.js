@@ -126,6 +126,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
               //due to other elements being rendered
               scope.position = appendToBody ? $position.offset(element) : $position.position(element);
               scope.position.top = scope.position.top + element.prop('offsetHeight');
+              scope.position.width = element.prop('offsetWidth');
 
             } else {
               resetMatches();

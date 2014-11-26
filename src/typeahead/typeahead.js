@@ -69,8 +69,6 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //expressions used by typeahead
       var parserResult = typeaheadParser.parse(attrs.typeahead);
 
-      var hasFocus;
-
       //create a child scope for the typeahead directive so we are not polluting original scope
       //with typeahead-specific data (matches, query etc.)
       var scope = originalScope.$new();
@@ -133,7 +131,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           //it might happen that several async queries were in progress if a user were typing fast
           //but we are interested only in responses that correspond to the current view value
           var onCurrentRequest = (inputValue === modelCtrl.$viewValue);
-          if (onCurrentRequest && hasFocus) {
+          if (onCurrentRequest && scope.focus.hasFocus) {
             if (matches.length > 0) {
 
               scope.activeIdx = focusFirst ? 0 : -1;

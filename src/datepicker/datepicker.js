@@ -430,8 +430,8 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
   showButtonBar: true
 })
 
-.directive('datepickerPopup', ['$compile', '$parse', '$document', '$position', 'dateFilter', 'dateParser', 'datepickerPopupConfig',
-function ($compile, $parse, $document, $position, dateFilter, dateParser, datepickerPopupConfig) {
+.directive('datepickerPopup', ['$compile', '$parse', '$document', '$position', '$timeout', 'dateFilter', 'dateParser', 'datepickerPopupConfig',
+function ($compile, $parse, $document, $position, $timeout, dateFilter, dateParser, datepickerPopupConfig) {
   return {
     restrict: 'EA',
     require: 'ngModel',
@@ -524,6 +524,13 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
       }
       ngModel.$parsers.unshift(parseDate);
 
+      function closeWithFocus() {
+        $timeout(function () {
+          scope.isOpen = false;
+          element[0].focus();
+        }, 0, false);
+      };
+
       // Inner change
       scope.dateSelection = function(dt) {
         if (angular.isDefined(dt)) {
@@ -533,8 +540,7 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
         ngModel.$render();
 
         if ( closeOnDateSelection ) {
-          scope.isOpen = false;
-          element[0].focus();
+          closeWithFocus();
         }
       };
 
@@ -600,8 +606,7 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
       };
 
       scope.close = function() {
-        scope.isOpen = false;
-        element[0].focus();
+        closeWithFocus();
       };
 
       var $popup = $compile(popupEl)(scope);

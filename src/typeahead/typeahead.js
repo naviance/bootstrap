@@ -126,11 +126,19 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         var locals = {$viewValue: inputValue};
         isLoadingSetter(originalScope, true);
+        scope.query = inputValue;
         $q.when(parserResult.source(originalScope, locals)).then(function(matches) {
 
           //it might happen that several async queries were in progress if a user were typing fast
           //but we are interested only in responses that correspond to the current view value
           var onCurrentRequest = (inputValue === modelCtrl.$viewValue);
+
+          //position pop-up with matches - we need to re-calculate its position each time we are opening a window
+          //with matches as a pop-up might be absolute-positioned and position of an input might have changed on a page
+          //due to other elements being rendered
+          scope.position = appendToBody ? $position.offset(element) : $position.position(element);
+          scope.position.top = scope.position.top + element.prop('offsetHeight');
+          scope.position.width = element.prop('offsetWidth');
           if (onCurrentRequest && scope.focus.hasFocus) {
             if (matches.length > 0) {
 
@@ -147,15 +155,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
                 });
               }
 
-              scope.query = inputValue;
               scope.selected = null;
-
-              //position pop-up with matches - we need to re-calculate its position each time we are opening a window
-              //with matches as a pop-up might be absolute-positioned and position of an input might have changed on a page
-              //due to other elements being rendered
-              scope.position = appendToBody ? $position.offset(element) : $position.position(element);
-              scope.position.top = scope.position.top + element.prop('offsetHeight');
-              scope.position.width = element.prop('offsetWidth');
 
               element.attr('aria-expanded', true);
             } else {
